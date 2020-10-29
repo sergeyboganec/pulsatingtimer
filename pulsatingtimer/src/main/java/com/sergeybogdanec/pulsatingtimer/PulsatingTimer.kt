@@ -10,7 +10,6 @@ import android.os.Looper
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.View
-import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.res.use
 import kotlin.math.min
@@ -109,13 +108,28 @@ class PulsatingTimer @JvmOverloads constructor(
     fun start() {
         timerHandler.removeCallbacksAndMessages(null)
         timerHandler.postDelayed(::handlerRunnable, ONE_SECOND)
+        pulsatingListener?.onStart()
+    }
+
+    fun pause() {
+        timerHandler.removeCallbacksAndMessages(null)
+        pulsatingListener?.onPause()
+    }
+
+    private var pulsatingListener: PulsatingListener? = null
+
+    fun setListener(listener: PulsatingListener) {
+        pulsatingListener = listener
     }
 
     private fun handlerRunnable() {
         if (progress < max) {
             progress += 1
             invalidate()
+            pulsatingListener?.onUpdate(progress)
             timerHandler.postDelayed(::handlerRunnable, ONE_SECOND)
+        } else {
+            pulsatingListener?.onEnd()
         }
     }
 

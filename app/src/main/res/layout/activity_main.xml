@@ -28,6 +28,16 @@
         android:fontFamily="@font/amiko"
         android:text="Start"
         android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/pause_button"
+        tools:ignore="HardcodedText" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pause_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/amiko"
+        android:text="pause"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="HardcodedText" />
 
