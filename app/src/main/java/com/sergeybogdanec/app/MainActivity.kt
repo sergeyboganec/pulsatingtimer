@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
+import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val pulse = AnimationUtils.loadAnimation(this, R.anim.pulse)
         findViewById<PulsatingTimer>(R.id.timer).let { timer ->
             findViewById<Button>(R.id.start_button).let { button ->
                 button.setOnClickListener {
@@ -37,6 +39,7 @@ class MainActivity : AppCompatActivity() {
             }, onPause = {
                 toast("pause")
             }, onUpdate = {
+                timer.startAnimation(pulse)
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     vibrator.vibrate(VibrationEffect.createOneShot(100L, 100))
                 } else {
