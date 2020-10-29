@@ -9,9 +9,11 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.res.use
+import kotlin.math.log
 import kotlin.math.min
 import kotlin.math.round
 
@@ -27,65 +29,91 @@ class PulsatingTimer @JvmOverloads constructor(
         textAlign = Paint.Align.CENTER
     }
 
-    var max = DEFAULT_MAX
+    private var _max = DEFAULT_MAX
+    var max
+        get() = _max
         set(value) {
-            field = value
+            _max = value
             invalidate()
         }
 
-    var textColor = DEFAULT_TEXT_COLOR
+    private var _textColor = DEFAULT_TEXT_COLOR
         set(value) {
             field = value
             textPaint.color = value
+        }
+    var textColor
+        get() = _textColor
+        set(value) {
+            _textColor = value
             invalidate()
         }
 
-    var backgroundTint = DEFAULT_BACKGROUND_TINT
+    private var _backgroundTint = DEFAULT_BACKGROUND_TINT
         set(value) {
             field = value
             circlePaint.color = value
-            invalidate()
         }
-
-    var progress = DEFAULT_PROGRESS
+    var backgroundTint
+        get() = _backgroundTint
         set(value) {
-            field = value
+            _backgroundTint = value
             invalidate()
         }
 
-    var textSize = 0f
+    private var _progress = DEFAULT_PROGRESS
+    var progress
+        get() = _progress
+        set(value) {
+            _progress = value
+            invalidate()
+        }
+
+    private var _textSize = 0f
         set(value) {
             field = value
             textPaint.textSize = value
+        }
+    var textSize
+        get() = _textSize
+        set(value) {
+            _textSize = value
             invalidate()
         }
 
-    var typeface = textPaint.typeface
+    private var _typeface = textPaint.typeface
         set(value) {
             field = value
             textPaint.typeface = value
+        }
+    var typeface
+        get() = _typeface
+        set(value) {
+            _typeface = value
             invalidate()
         }
 
-    var circleRadius = -1f
+    private var _circleRadius = -1f
+    var circleRadius
+        get() = _circleRadius
         set(value) {
-            field = value
+            _circleRadius = value
             invalidate()
         }
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.PulsatingTimer).use { typedArray ->
-            max = typedArray.getInt(R.styleable.PulsatingTimer_android_max, DEFAULT_MAX)
-            textColor = typedArray.getColor(R.styleable.PulsatingTimer_android_textColor, DEFAULT_TEXT_COLOR)
-            backgroundTint = typedArray.getColor(R.styleable.PulsatingTimer_android_backgroundTint, DEFAULT_BACKGROUND_TINT)
-            progress = typedArray.getInt(R.styleable.PulsatingTimer_android_progress, DEFAULT_PROGRESS)
-            textSize = typedArray.getDimension(R.styleable.PulsatingTimer_android_textSize, 0f)
-            circleRadius = typedArray.getDimension(R.styleable.PulsatingTimer_circleRadius, -1f)
+            _max = typedArray.getInt(R.styleable.PulsatingTimer_android_max, DEFAULT_MAX)
+            _textColor = typedArray.getColor(R.styleable.PulsatingTimer_android_textColor, DEFAULT_TEXT_COLOR)
+            _backgroundTint = typedArray.getColor(R.styleable.PulsatingTimer_android_backgroundTint, DEFAULT_BACKGROUND_TINT)
+            _progress = typedArray.getInt(R.styleable.PulsatingTimer_android_progress, DEFAULT_PROGRESS)
+            _textSize = typedArray.getDimension(R.styleable.PulsatingTimer_android_textSize, 0f)
+            _circleRadius = typedArray.getDimension(R.styleable.PulsatingTimer_circleRadius, -1f)
             try {
                 val resId = typedArray.getResourceId(R.styleable.PulsatingTimer_android_fontFamily, -1)
                 if (resId != -1) {
                     ResourcesCompat.getFont(context, resId)?.let {
-                        typeface = it
+                        _typeface = it
                     }
                 }
             } catch (e: Resources.NotFoundException) {
@@ -96,9 +124,13 @@ class PulsatingTimer @JvmOverloads constructor(
 
     private val timerHandler: Handler = Handler(Looper.getMainLooper())
 
+    private var drawCount = 0
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawColor(Color.TRANSPARENT)
+
+        Log.d(TAG, "onDraw: ${++drawCount}")
 
         val centerX = round(width / 2f)
         val centerY = round(height / 2f)
@@ -110,6 +142,8 @@ class PulsatingTimer @JvmOverloads constructor(
         val ty = centerY - (textPaint.descent() + textPaint.ascent()) / 2
 
         canvas.drawText(text, centerX, ty, textPaint)
+
+        if (hasWindowFocus()) invalidate()
     }
 
     fun start() {
@@ -130,10 +164,10 @@ class PulsatingTimer @JvmOverloads constructor(
     }
 
     private fun handlerRunnable() {
-        if (progress < max) {
+        if (_progress < _max) {
+            Log.d(TAG, "handlerRunnable: $progress")
             progress += 1
-            invalidate()
-            pulsatingListener?.onUpdate(progress)
+            pulsatingListener?.onUpdate(_progress)
             timerHandler.postDelayed(::handlerRunnable, ONE_SECOND)
         } else {
             pulsatingListener?.onEnd()
