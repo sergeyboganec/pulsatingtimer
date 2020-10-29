@@ -67,6 +67,12 @@ class PulsatingTimer @JvmOverloads constructor(
             invalidate()
         }
 
+    var circleRadius = -1f
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     init {
         context.obtainStyledAttributes(attrs, R.styleable.PulsatingTimer).use { typedArray ->
             max = typedArray.getInt(R.styleable.PulsatingTimer_android_max, DEFAULT_MAX)
@@ -74,6 +80,7 @@ class PulsatingTimer @JvmOverloads constructor(
             backgroundTint = typedArray.getColor(R.styleable.PulsatingTimer_android_backgroundTint, DEFAULT_BACKGROUND_TINT)
             progress = typedArray.getInt(R.styleable.PulsatingTimer_android_progress, DEFAULT_PROGRESS)
             textSize = typedArray.getDimension(R.styleable.PulsatingTimer_android_textSize, 0f)
+            circleRadius = typedArray.getDimension(R.styleable.PulsatingTimer_circleRadius, -1f)
             try {
                 val resId = typedArray.getResourceId(R.styleable.PulsatingTimer_android_fontFamily, -1)
                 if (resId != -1) {
@@ -95,7 +102,7 @@ class PulsatingTimer @JvmOverloads constructor(
 
         val centerX = round(width / 2f)
         val centerY = round(height / 2f)
-        val radius = min(centerX, centerY)
+        val radius = circleRadius.takeIf { it >= 0 } ?: min(centerX, centerY)
 
         canvas.drawCircle(centerX, centerY, radius, circlePaint)
 

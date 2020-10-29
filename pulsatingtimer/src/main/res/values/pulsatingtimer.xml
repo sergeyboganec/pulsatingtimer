@@ -7,5 +7,6 @@
         <attr name="android:progress" format="integer"/>
         <attr name="android:textSize" format="dimension"/>
         <attr name="android:fontFamily" format="reference"/>
+        <attr name="circleRadius" format="dimension"/>
     </declare-styleable>
 </resources>
