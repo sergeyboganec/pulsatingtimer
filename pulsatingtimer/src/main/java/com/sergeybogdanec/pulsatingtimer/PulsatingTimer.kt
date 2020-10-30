@@ -240,9 +240,9 @@ class PulsatingTimer @JvmOverloads constructor(
     private fun timerRunnable() {
         if (_progress != _target) {
             if (_progress < _target) {
-                _progress++
+                progress++
             } else {
-                _progress--
+                progress--
             }
             pulsatingListener?.onUpdate(_progress)
             animationHandler.postDelayed(::timerRunnable, ONE_SECOND)
@@ -255,6 +255,7 @@ class PulsatingTimer @JvmOverloads constructor(
 
     private fun pulsationRunnable() {
         pulsations.add(System.currentTimeMillis())
+        invalidate()
         animationHandler.postDelayed(::pulsationRunnable, _pulsationInterval)
     }
 
