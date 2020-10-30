@@ -3,7 +3,7 @@
     <declare-styleable name="PulsatingTimer">
         <attr name="android:textColor" format="color"/>
         <attr name="android:backgroundTint" format="color"/>
-        <attr name="android:max" format="integer"/>
+        <attr name="target" format="integer"/>
         <attr name="android:progress" format="integer"/>
         <attr name="android:textSize" format="dimension"/>
         <attr name="android:fontFamily" format="reference"/>

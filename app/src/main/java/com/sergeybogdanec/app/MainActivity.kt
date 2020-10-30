@@ -3,16 +3,12 @@ package com.sergeybogdanec.app
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.util.Log
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.AccelerateInterpolator
 import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
 import com.sergeybogdanec.pulsatingtimer.PulsatingTimer
 import com.sergeybogdanec.pulsatingtimer.setListener
 

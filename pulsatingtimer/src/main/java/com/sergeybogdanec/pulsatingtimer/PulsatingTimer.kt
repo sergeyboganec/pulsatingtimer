@@ -1,12 +1,16 @@
 package com.sergeybogdanec.pulsatingtimer
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
+import android.os.Parcel
+import android.os.Parcelable
 import android.text.TextPaint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.view.animation.Interpolator
@@ -29,11 +33,11 @@ class PulsatingTimer @JvmOverloads constructor(
         textAlign = Paint.Align.CENTER
     }
 
-    private var _max = DEFAULT_MAX
-    var max: Int
-        get() = _max
+    private var _target = DEFAULT_TARGET
+    var target: Int
+        get() = _target
         set(value) {
-            _max = value
+            _target = value
             invalidate()
         }
 
@@ -133,15 +137,16 @@ class PulsatingTimer @JvmOverloads constructor(
     var pulsationColor: Int
         get() = _pulsationColor
         set(value) {
-            _pulsationColor
+            _pulsationColor = value
             invalidate()
         }
 
     var interpolator: Interpolator = LinearInterpolator()
 
     init {
+        isSaveEnabled = true
         context.obtainStyledAttributes(attrs, R.styleable.PulsatingTimer).use { typedArray ->
-            _max = typedArray.getInt(R.styleable.PulsatingTimer_android_max, DEFAULT_MAX)
+            _target = typedArray.getInt(R.styleable.PulsatingTimer_target, DEFAULT_TARGET)
             _textColor = typedArray.getColor(R.styleable.PulsatingTimer_android_textColor, DEFAULT_TEXT_COLOR)
             _backgroundTint = typedArray.getColor(R.styleable.PulsatingTimer_android_backgroundTint, DEFAULT_BACKGROUND_TINT)
             _progress = typedArray.getInt(R.styleable.PulsatingTimer_android_progress, DEFAULT_PROGRESS)
@@ -216,25 +221,34 @@ class PulsatingTimer @JvmOverloads constructor(
 
     private val pulsations: MutableList<Long> by lazy { mutableListOf() }
 
+    private var isStarted: Boolean = false
+
     fun start() {
         animationHandler.removeCallbacksAndMessages(null)
         animationHandler.postDelayed(::timerRunnable, ONE_SECOND)
         animationHandler.postDelayed(::pulsationRunnable, _pulsationInterval)
         pulsatingListener?.onStart()
+        isStarted = true
     }
 
     fun pause() {
+        isStarted = false
         animationHandler.removeCallbacksAndMessages(null)
         pulsatingListener?.onPause()
     }
 
     private fun timerRunnable() {
-        if (_progress < _max) {
-            progress += 1
+        if (_progress != _target) {
+            if (_progress < _target) {
+                _progress++
+            } else {
+                _progress--
+            }
             pulsatingListener?.onUpdate(_progress)
             animationHandler.postDelayed(::timerRunnable, ONE_SECOND)
         } else {
             animationHandler.removeCallbacksAndMessages(null)
+            isStarted = false
             pulsatingListener?.onEnd()
         }
     }
@@ -244,9 +258,61 @@ class PulsatingTimer @JvmOverloads constructor(
         animationHandler.postDelayed(::pulsationRunnable, _pulsationInterval)
     }
 
+    override fun onDetachedFromWindow() {
+        animationHandler.removeCallbacksAndMessages(null)
+        pulsatingListener = null
+        super.onDetachedFromWindow()
+    }
+
+    override fun onSaveInstanceState(): Parcelable? = SavedState(super.onSaveInstanceState()).also {
+        it.isStarted = isStarted
+        it.progress = _progress
+        it.pulsations.addAll(pulsations)
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        val savedState = state as SavedState
+        super.onRestoreInstanceState(savedState.superState)
+        _progress = savedState.progress
+        pulsations.clear()
+        pulsations.addAll(savedState.pulsations)
+        requestLayout()
+        invalidate()
+        if (savedState.isStarted) start()
+    }
+
+    private class SavedState: BaseSavedState {
+        var isStarted: Boolean = false
+        var progress: Int = DEFAULT_PROGRESS
+        val pulsations: MutableList<Long> = mutableListOf()
+
+        constructor(superState: Parcelable?): super(superState) { }
+
+        constructor(parcel: Parcel): super(parcel) {
+            isStarted = parcel.readByte().toBoolean()
+            progress = parcel.readInt()
+            pulsations.addAll(parcel.createLongArray()?.toList().orEmpty())
+        }
+
+        override fun writeToParcel(out: Parcel, flags: Int) {
+            super.writeToParcel(out, flags)
+            out.writeByte(isStarted.toByte())
+            out.writeInt(progress)
+            out.writeLongArray(pulsations.toLongArray())
+        }
+
+        companion object {
+            @JvmField
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(source: Parcel): SavedState = SavedState(source)
+                override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+            }
+        }
+    }
+
     companion object {
 
-        private const val DEFAULT_MAX = 1000
+        private const val DEFAULT_TARGET = 1000
         private const val DEFAULT_PROGRESS = 0
         private const val DEFAULT_TEXT_COLOR = Color.BLACK
         private const val DEFAULT_BACKGROUND_TINT = Color.WHITE
