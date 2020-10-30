@@ -1,20 +1,18 @@
 package com.sergeybogdanec.pulsatingtimer
 
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Typeface
+import android.graphics.*
 import android.os.Handler
 import android.os.Looper
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.view.animation.AnimationUtils
+import android.view.animation.Interpolator
+import android.view.animation.LinearInterpolator
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.res.use
-import java.io.Serializable
 import kotlin.math.min
 import kotlin.math.round
 
@@ -139,6 +137,8 @@ class PulsatingTimer @JvmOverloads constructor(
             invalidate()
         }
 
+    var interpolator: Interpolator = LinearInterpolator()
+
     init {
         context.obtainStyledAttributes(attrs, R.styleable.PulsatingTimer).use { typedArray ->
             _max = typedArray.getInt(R.styleable.PulsatingTimer_android_max, DEFAULT_MAX)
@@ -151,15 +151,15 @@ class PulsatingTimer @JvmOverloads constructor(
             _pulsationInterval = typedArray.getInt(R.styleable.PulsatingTimer_pulsationIntervalMillis, DEFAULT_PULSATION_INTERVAL.toInt()).toLong()
             _pulsationDuration = typedArray.getInt(R.styleable.PulsatingTimer_pulsationDuration, DEFAULT_PULSATION_DURATION.toInt()).toLong()
             _pulsationColor = typedArray.getColor(R.styleable.PulsatingTimer_pulsationColor, DEFAULT_PULSATION_COLOR)
-            try {
-                val resId = typedArray.getResourceId(R.styleable.PulsatingTimer_android_fontFamily, -1)
-                if (resId != -1) {
-                    ResourcesCompat.getFont(context, resId)?.let {
-                        _typeface = it
-                    }
+            val fontResId = typedArray.getResourceId(R.styleable.PulsatingTimer_android_fontFamily, -1)
+            if (fontResId != -1) {
+                ResourcesCompat.getFont(context, fontResId)?.let {
+                    _typeface = it
                 }
-            } catch (e: Resources.NotFoundException) {
-                e.printStackTrace()
+            }
+            val interpolatorResId = typedArray.getResourceId(R.styleable.PulsatingTimer_pulsationInterpolator, -1)
+            if (interpolatorResId != -1) {
+                interpolator = AnimationUtils.loadInterpolator(context, interpolatorResId)
             }
         }
     }
@@ -185,8 +185,9 @@ class PulsatingTimer @JvmOverloads constructor(
         val iterator = pulsations.iterator()
         while(iterator.hasNext()) {
             val time = iterator.next()
-            val fraction = (currentTime - time).toFloat() / _pulsationDuration
-            if (fraction < MAX_FRACTION) {
+            val diff = (currentTime - time).toFloat()
+            val fraction = interpolator.getInterpolation(diff / _pulsationDuration)
+            if (fraction < MAX_FRACTION && diff < _pulsationDuration) {
                 val pulsationRadius = radiusDiff * fraction + radius
                 pulsationPaint.alpha = ((pulsationAlpha * (1f - fraction)) * MAX_ALPHA).toInt()
                 canvas.drawCircle(centerX, centerY, pulsationRadius, pulsationPaint)

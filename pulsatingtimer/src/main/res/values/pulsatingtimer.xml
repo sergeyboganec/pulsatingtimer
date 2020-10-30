@@ -12,5 +12,6 @@
         <attr name="pulsationIntervalMillis" format="integer"/>
         <attr name="pulsationDuration" format="integer"/>
         <attr name="pulsationColor" format="color"/>
+        <attr name="pulsationInterpolator" format="reference"/>
     </declare-styleable>
 </resources>

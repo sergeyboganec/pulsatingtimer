@@ -6,7 +6,10 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.AnimationUtils
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -25,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         val pulse = AnimationUtils.loadAnimation(this, R.anim.pulse)
         findViewById<PulsatingTimer>(R.id.timer).let { timer ->
             findViewById<Button>(R.id.start_button).let { button ->
+                timer.interpolator = DecelerateInterpolator()
                 button.setOnClickListener {
                     timer.start()
                 }
