@@ -8,5 +8,9 @@
         <attr name="android:textSize" format="dimension"/>
         <attr name="android:fontFamily" format="reference"/>
         <attr name="circleRadius" format="dimension"/>
+        <attr name="pulsationAlpha" format="fraction"/>
+        <attr name="pulsationIntervalMillis" format="integer"/>
+        <attr name="pulsationDuration" format="integer"/>
+        <attr name="pulsationColor" format="color"/>
     </declare-styleable>
 </resources>
