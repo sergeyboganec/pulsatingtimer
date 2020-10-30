@@ -12,11 +12,11 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:textColor="#ff4949"
-        android:textSize="85sp"
-        app:circleRadius="80dp"
+        android:textSize="70sp"
+        app:circleRadius="100dp"
         app:target="0"
-        android:progress="10"
-        android:layout_marginHorizontal="64dp"
+        android:progress="1350"
+        android:layout_marginHorizontal="32dp"
         android:fontFamily="@font/open_sans_semibold"
         app:layout_constraintBottom_toTopOf="@id/start_button"
         app:layout_constraintHorizontal_bias="0.0"
@@ -24,7 +24,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:pulsationDuration="5000" />
+        app:pulsationDuration="2000" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/start_button"

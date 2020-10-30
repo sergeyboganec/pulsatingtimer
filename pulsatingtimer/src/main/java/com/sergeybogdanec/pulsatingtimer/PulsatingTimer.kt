@@ -25,9 +25,9 @@ class PulsatingTimer @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ): View(context, attrs) {
 
-    private val circlePaint = Paint()
+    private val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val pulsationPaint = Paint()
+    private val pulsationPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
