@@ -1,6 +1,7 @@
 package com.sergeybogdanec.pulsatingtimer
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -157,14 +158,22 @@ class PulsatingTimer @JvmOverloads constructor(
             _pulsationDuration = typedArray.getInt(R.styleable.PulsatingTimer_pulsationDuration, DEFAULT_PULSATION_DURATION.toInt()).toLong()
             _pulsationColor = typedArray.getColor(R.styleable.PulsatingTimer_pulsationColor, DEFAULT_PULSATION_COLOR)
             val fontResId = typedArray.getResourceId(R.styleable.PulsatingTimer_android_fontFamily, -1)
-            if (fontResId != -1) {
-                ResourcesCompat.getFont(context, fontResId)?.let {
-                    _typeface = it
+            try {
+                if (fontResId != -1) {
+                    ResourcesCompat.getFont(context, fontResId)?.let {
+                        _typeface = it
+                    }
                 }
+            } catch (e: Resources.NotFoundException) {
+                e.printStackTrace()
             }
-            val interpolatorResId = typedArray.getResourceId(R.styleable.PulsatingTimer_pulsationInterpolator, -1)
-            if (interpolatorResId != -1) {
-                interpolator = AnimationUtils.loadInterpolator(context, interpolatorResId)
+            try {
+                val interpolatorResId = typedArray.getResourceId(R.styleable.PulsatingTimer_pulsationInterpolator, -1)
+                if (interpolatorResId != -1) {
+                    interpolator = AnimationUtils.loadInterpolator(context, interpolatorResId)
+                }
+            } catch (e: Resources.NotFoundException) {
+                e.printStackTrace()
             }
         }
     }
